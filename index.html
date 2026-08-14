@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#145c45">
+<title>MAINTENANT</title>
+<style>
+body{margin:0;background:#e8eee9;font-family:Arial,sans-serif;color:#17221d}.app{max-width:440px;margin:auto;min-height:100vh;background:#f8faf7;padding:16px;box-sizing:border-box}header{display:flex;justify-content:center;align-items:center;height:55px}.logo{font-size:25px;font-weight:900;color:#17221d}.voice{background:white;border-radius:24px;padding:25px 18px;text-align:center;margin-top:10px;box-shadow:0 5px 18px #0001}.mic{width:115px;height:115px;border:0;border-radius:60px;background:#145c45;color:white;font-size:48px}.green{color:#145c45;font-weight:800}.muted{color:#77827c}.input{display:flex;gap:7px;margin-top:15px}.input input{flex:1;min-width:0;padding:13px;border:1px solid #dce3de;border-radius:12px;font-size:15px}.add,.btn{border:0;border-radius:14px;padding:13px;font-weight:800}.add{background:#e5f0e8;color:#145c45}.time{font-size:43px;font-weight:900}.hero{background:#145c45;color:white;border-radius:23px;padding:20px;margin-top:20px}.task{font-size:27px;font-weight:900;margin:12px 0}.meta{opacity:.9}.white{background:white;color:#145c45;width:100%;margin-top:16px}.light{background:#e5f0e8;color:#145c45;width:100%;margin-top:8px}.section{font-size:13px;font-weight:900;color:#69746e;margin:22px 4px 8px}.row{background:white;border-radius:16px;padding:14px;margin:8px 0;display:flex;gap:10px;align-items:center}.grow{flex:1}.row b{display:block}.row small{color:#77827c}.mins{background:#edf6ee;color:#145c45;padding:6px 8px;border-radius:8px;font-weight:800}.status{min-height:18px;font-size:12px;color:#68736d;margin-top:8px}nav{display:flex;justify-content:space-around;color:#145c45;font-size:12px;font-weight:700;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="logo">MAINTENANT</div></header>
+
+<section class="voice">
+<button class="mic" onclick="speak()">🎙</button>
+<p class="green" style="font-size:21px;margin:16px 0 5px">Dis-moi ce que tu dois faire</p>
+<p class="muted" style="font-size:13px">Appuie sur le micro et parle naturellement</p>
+<div class="input"><input id="input" placeholder="Ex. courses puis appeler Paul"><button class="add" onclick="addTasks()">Ajouter</button></div>
+<div id="status" class="status"></div>
+</section>
+
+<h2>Bonjour 👋</h2>
+<div class="green">Il te reste aujourd'hui</div>
+<div id="time" class="time">1 h 25</div>
+<div class="muted">de temps disponible</div>
+
+<section class="hero">
+<div style="font-size:12px;font-weight:900">À FAIRE MAINTENANT</div>
+<div id="current" class="task">Changer le robinet</div>
+<div id="meta" class="meta">◷ 35 min · ⌖ Maison</div>
+<button class="btn white" onclick="done()">✓ FAIT</button>
+<button class="btn light" onclick="later()">↻ PLUS TARD</button>
+</section>
+
+<div class="section">APRÈS</div>
+<div id="list"></div>
+<nav><span>⌂<br>Aujourd'hui</span><span>◷<br>Historique</span><span>▮▮<br>Stats</span></nav>
+</div>
+
+<script>
+var tasks=[
+{name:"Changer le robinet",min:35,place:"Maison",priority:3},
+{name:"Faire les courses",min:25,place:"Supermarché",priority:2},
+{name:"Passer l'aspirateur",min:20,place:"Maison",priority:1},
+{name:"Appeler le plombier",min:5,place:"Téléphone",priority:3}
+];
+var available=85;
+
+function score(t){
+var fit=t.min<=available?35:-30;
+var urgent=t.priority*25;
+var place=(t.place==="Maison"||t.place==="Téléphone")?15:5;
+return fit+urgent+place-t.min;
+}
+
+function render(){
+tasks.sort(function(a,b){return score(b)-score(a);});
+document.getElementById("time").textContent=available>=60?Math.floor(available/60)+" h "+(available%60):available+" min";
+var t=tasks[0];
+document.getElementById("current").textContent=t?t.name:"🎉 Tout est fait !";
+document.getElementById("meta").textContent=t?"◷ "+t.min+" min · ⌖ "+t.place:"Toutes les tâches sont terminées.";
+var box=document.getElementById("list");
+box.innerHTML="";
+for(var i=1;i<tasks.length;i++){
+var x=tasks[i];
+box.innerHTML+='<div class="row"><div class="grow"><b>'+escapeHtml(x.name)+'</b><small>⌖ '+escapeHtml(x.place)+'</small></div><span class="mins">'+x.min+' min</span></div>';
+}
+}
+
+function escapeHtml(s){
+return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+function done(){
+if(!tasks.length)return;
+var t=tasks.shift();
+available=Math.max(0,available-t.min);
+show("✓ Tâche terminée. Voici la prochaine.");
+render();
+}
+
+function later(){
+if(tasks.length>1){
+tasks.push(tasks.shift());
+show("↻ Tâche remise plus tard.");
+render();
+}
+}
+
+function addTasks(){
+var text=document.getElementById("input").value.trim();
+if(!text)return;
+var parts=text.split(/\s*(?:,|;| puis | ensuite | et )\s*/i);
+for(var i=0;i<parts.length;i++){
+var name=parts[i].trim();
+if(!name)continue;
+var m=name.match(/(\d+)\s*(?:min|minutes)/i);
+var min=m?parseInt(m[1]):15;
+name=name.replace(/\d+\s*(?:min|minutes)/i,"").replace(/^[:,-]\s*/,"").trim();
+var place=/course|supermarché|acheter/i.test(name)?"Supermarché":/appeler|téléphoner/i.test(name)?"Téléphone":"Maison";
+var priority=/urgent|important|vite|aujourd'hui/i.test(name)?4:1;
+tasks.push({name:name.charAt(0).toUpperCase()+name.slice(1),min:min,place:place,priority:priority});
+}
+document.getElementById("input").value="";
+show("✓ Tâches ajoutées.");
+render();
+}
+
+function speak(){
+if(!("webkitSpeechRecognition" in window)){
+show("La dictée vocale n'est pas disponible dans ce navigateur.");
+return;
+}
+var r=new webkitSpeechRecognition();
+r.lang="fr-FR";
+r.interimResults=false;
+r.onstart=function(){show("🎙 Je t'écoute…");};
+r.onresult=function(e){
+document.getElementById("input").value=e.results[0][0].transcript;
+addTasks();
+};
+r.onerror=function(){show("Je n'ai pas compris. Réessaie.");};
+r.start();
+}
+
+function show(text){
+document.getElementById("status").textContent=text;
+setTimeout(function(){document.getElementById("status").textContent="";},2500);
+}
+
+render();
+</script>
+</body>
+</html>
