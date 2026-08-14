@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#145c45"><title>MAINTENANT</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e8eee9;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#17221d}.app{max-width:460px;min-height:100vh;margin:auto;background:#f8faf7;padding:14px 16px 25px}
+header{height:55px;display:flex;align-items:center;justify-content:space-between}.logo{font-size:24px;font-weight:900}.ico{font-size:23px;color:#145c45}
+h1{font-size:25px;margin:18px 3px 4px}.green{color:#145c45;font-weight:800}.time{font-size:44px;font-weight:900;margin:5px 3px}.muted{color:#77827c}
+.hero{margin-top:20px;background:#145c45;color:white;border-radius:24px;padding:20px}.tag{font-size:12px;font-weight:900;background:#4e9c7d;border-radius:99px;padding:6px 10px}.hero h2{font-size:14px;margin:15px 0}.task{font-size:28px;font-weight:900}.meta{margin-top:10px;opacity:.92}.btn{width:100%;border:0;border-radius:16px;padding:15px;margin-top:17px;font-size:16px;font-weight:900}.white{color:#145c45;background:white}.light{color:#145c45;background:#e5f0e8}.row{background:white;border-radius:18px;margin:8px 0;padding:14px;display:flex;gap:11px;align-items:center}.emoji{font-size:24px}.grow{flex:1}.row b{display:block}.row small{color:#7b8580}.mins{color:#145c45;background:#edf6ee;padding:6px 8px;border-radius:9px;font-weight:800}
+.alarm{border:0;background:#fff1cf;color:#8a5a00;border-radius:10px;padding:7px 9px;font-weight:800;font-size:12px;margin-left:5px}
+.alarm.on{background:#e4f2e7;color:#145c45}.section{font-size:13px;font-weight:900;color:#69746e;margin:24px 4px 9px}
+.calendar{background:#fff;border-radius:22px;padding:18px;margin-top:20px;box-shadow:0 5px 18px #0000000c}
+.calhead{display:flex;align-items:center;justify-content:space-between}.calhead b{font-size:20px}.calbtn{border:0;background:#e5f0e8;color:#145c45;border-radius:12px;padding:8px 11px;font-weight:900}
+.birthrow{display:flex;gap:9px;margin-top:12px}.birthrow input{min-width:0;flex:1;padding:11px;border:1px solid #dce3de;border-radius:11px}.birthrow button{border:0;border-radius:11px;background:#145c45;color:#fff;padding:0 13px;font-weight:900}
+.event{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid #edf0ed}.event:last-child{border:0}.event .date{font-weight:900;color:#145c45;width:48px}.event .grow{flex:1}.event small{color:#77827c}.voice{background:white;border-radius:24px;padding:22px 18px;text-align:center;margin-top:20px;box-shadow:0 6px 20px #00000012;border:2px solid #dce9df}.mic{width:112px;height:112px;border:0;border-radius:50%;background:#145c45;color:white;font-size:48px;box-shadow:0 8px 20px #145c4540;cursor:pointer}.input{display:flex;gap:7px;margin-top:14px}.input input{flex:1;min-width:0;padding:13px;border:1px solid #dce3de;border-radius:13px;font-size:15px}.add{border:0;border-radius:13px;background:#e5f0e8;color:#145c45;font-weight:900;padding:0 13px}.status{min-height:18px;color:#68736d;font-size:12px;margin-top:8px}nav{display:flex;justify-content:space-around;margin-top:20px;color:#7b8580;font-size:12px;font-weight:700}.active{color:#145c45}
+</style></head><body><div class="app">
+<header><span class="ico">☰</span><div class="logo">MAINTENANT</div><span class="ico">⚙</span></header>
+<section class="voice"><button class="mic" onclick="speak()">🎙</button><p class="green" style="font-size:20px;margin:16px 0 6px">Dis-moi ce que tu dois faire</p><p class="muted" style="font-size:13px;margin:0 0 14px">Appuie sur le micro et parle naturellement</p><div class="input"><input id="txt" placeholder="Ex. 30 min : courses puis appeler Paul"><button class="add" onclick="add()">Ajouter</button></div><button class="btn light" onclick="askNotifications()" style="margin-top:10px">🔔 Activer les notifications</button><div class="status" id="status"></div></section><h1>Bonjour 👋</h1><div class="green">Il te reste aujourd’hui</div><div class="time" id="time">1 h 25</div><div class="muted">de temps disponible</div>
+<section class="hero"><span class="tag">À FAIRE</span><h2>FAIS ÇA MAINTENANT</h2><div class="task" id="current">—</div><div class="meta" id="meta">—</div><button class="btn white" onclick="start()">▶ COMMENCER</button><button class="btn light" onclick="done()">✓ Fait</button><button class="btn light" onclick="later()">↻ Plus tard</button></section>
+<div class="section">APRÈS</div><div id="list"></div>
+
+
+
+<section class="calendar">
+  <div class="calhead"><b>👥 Mes proches</b></div>
+  <p class="muted" style="margin:8px 0">Garde les numéros et anniversaires au même endroit.</p>
+  <div class="birthrow">
+    <input id="cname" placeholder="Prénom / nom">
+    <input id="cphone" type="tel" placeholder="Téléphone">
+    <button onclick="addContact()">Ajouter</button>
+  </div>
+  <button class="btn light" onclick="importContact()" style="margin-top:10px">📱 Importer depuis mes contacts</button>
+  <div id="contacts"></div>
+  <div class="status" id="contactStatus"></div>
+</section>
+<section class="calendar">
+  <div class="calhead">
+    <b>📅 Mon année</b>
+    <button class="calbtn" onclick="nextBirthdayMonth()">Mois suivant →</button>
+  </div>
+  <div id="monthLabel" class="green" style="margin-top:8px"></div>
+  <div id="events"></div>
+  <div class="section" style="margin-top:16px">🎂 ANNIVERSAIRES</div>
+  <div class="birthrow">
+    <input id="bname" placeholder="Prénom / proche">
+    <input id="bdate" type="date" aria-label="Date d'anniversaire">
+    <button onclick="addBirthday()">Ajouter</button>
+  </div>
+  <div class="status" id="birthdayStatus"></div>
+</section>
+<nav><span class="active">⌂<br>Aujourd’hui</span><span>◷<br>Historique</span><span>▮▮<br>Stats</span></nav>
+</div>
+<script>
+const K="maintenant8";let d=JSON.parse(localStorage.getItem(K)||"null")||{available:85,birthdays:[],events:[],tasks:[
+{name:"Changer le robinet",min:35,place:"Maison",p:3},
+{name:"Faire les courses",min:25,place:"Supermarché",p:2},
+{name:"Passer l’aspirateur",min:20,place:"Maison",p:1},
+{name:"Appeler le plombier",min:5,place:"Téléphone",p:3}]};
+function save(){localStorage.setItem(K,JSON.stringify(d))}
+if(!d.birthdays)d.birthdays=[]; if(!d.events)d.events=[]; if(!d.contacts)d.contacts=[];
+function score(t){let fit=t.min<=d.available?35:-30;let urgent=t.p*25;let place=t.place==="Maison"||t.place==="Téléphone"?15:5;return fit+urgent+place-t.min/10}
+
+
+function addContact(){
+  const name=document.getElementById("cname").value.trim();
+  const phone=document.getElementById("cphone").value.trim();
+  if(!name||!phone){document.getElementById("contactStatus").textContent="Indique un nom et un numéro.";return}
+  d.contacts.push({name,phone});
+  document.getElementById("cname").value="";document.getElementById("cphone").value="";
+  save();renderContacts();document.getElementById("contactStatus").textContent="✓ Contact ajouté.";
+}
+function removeContact(i){d.contacts.splice(i,1);save();renderContacts()}
+function renderContacts(){
+  const box=document.getElementById("contacts");box.innerHTML="";
+  if(!d.contacts.length){box.innerHTML='<div class="muted" style="padding:12px 0">Aucun proche enregistré.</div>';return}
+  d.contacts.forEach((c,i)=>{
+    box.innerHTML+=`<div class="event"><div class="emoji">👤</div><div class="grow"><b>${esc(c.name)}</b><small>${esc(c.phone)}</small></div><a class="calbtn" href="tel:${encodeURIComponent(c.phone)}">📞</a><button class="calbtn" onclick="removeContact(${i})">✕</button></div>`;
+  });
+}
+async function importContact(){
+  if(!("contacts" in navigator)){document.getElementById("contactStatus").textContent="L’import automatique dépend du navigateur. Tu peux ajouter le numéro manuellement.";return}
+  try{
+    const props=["name","tel"];
+    const selected=await navigator.contacts.select(props,{multiple:true});
+    selected.forEach(c=>{
+      const name=(c.name&&c.name[0])||"Contact";
+      const phone=(c.tel&&c.tel[0])||"";
+      if(phone)d.contacts.push({name,phone});
+    });
+    save();renderContacts();document.getElementById("contactStatus").textContent="✓ Contacts importés.";
+  }catch(e){document.getElementById("contactStatus").textContent="Import annulé ou non disponible."; }
+}
+
+let calendarMonth=new Date().getMonth();
+let calendarYear=new Date().getFullYear();
+
+function nextBirthdayMonth(){
+  calendarMonth++;
+  if(calendarMonth>11){calendarMonth=0;calendarYear++}
+  renderCalendar();
+}
+
+function addBirthday(){
+  const name=document.getElementById("bname").value.trim();
+  const date=document.getElementById("bdate").value;
+  if(!name||!date){document.getElementById("birthdayStatus").textContent="Indique un prénom et une date.";return}
+  const parts=date.split("-");
+  d.birthdays.push({name,month:+parts[1]-1,day:+parts[2],alarm:"08:00"});
+  d.birthdays.sort((a,b)=>a.month-b.month||a.day-b.day);
+  document.getElementById("bname").value="";document.getElementById("bdate").value="";
+  document.getElementById("birthdayStatus").textContent="🎂 Anniversaire ajouté — rappel à 08:00.";
+  save();renderCalendar();
+}
+
+function renderCalendar(){
+  const label=new Date(calendarYear,calendarMonth,1).toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
+  document.getElementById("monthLabel").textContent=label.charAt(0).toUpperCase()+label.slice(1);
+  const events=document.getElementById("events");events.innerHTML="";
+  const birthdays=d.birthdays.filter(x=>x.month===calendarMonth).sort((a,b)=>a.day-b.day);
+  const custom=d.events.filter(x=>{
+    const dt=new Date(x.date+"T00:00:00"); return dt.getMonth()===calendarMonth && dt.getFullYear()===calendarYear;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!birthdays.length&&!custom.length){
+    events.innerHTML='<div class="muted" style="padding:14px 0">Aucun événement ce mois-ci.</div>';
+  }
+  birthdays.forEach(x=>{
+    events.innerHTML+=`<div class="event"><div class="date">${String(x.day).padStart(2,"0")}</div><div class="grow"><b>🎂 ${esc(x.name)}</b><small>Anniversaire · rappel ${x.alarm}</small></div></div>`;
+  });
+  custom.forEach(x=>{
+    const day=new Date(x.date+"T00:00:00").getDate();
+    events.innerHTML+=`<div class="event"><div class="date">${String(day).padStart(2,"0")}</div><div class="grow"><b>📌 ${esc(x.title)}</b><small>${esc(x.time||"Toute la journée")}</small></div></div>`;
+  });
+}
+
+function checkBirthdayAlarms(){
+  const now=new Date(), month=now.getMonth(), day=now.getDate();
+  const hh=String(now.getHours()).padStart(2,"0"),mm=String(now.getMinutes()).padStart(2,"0");
+  d.birthdays.forEach(b=>{
+    if(b.month===month&&b.day===day&&b.alarm===hh+":"+mm){
+      const key=`${now.getFullYear()}-${month}-${day}-${b.name}`;
+      if(d.lastBirthdayAlarm!==key){d.lastBirthdayAlarm=key;save();notify("🎂 Anniversaire de "+b.name+" !")}
+    }
+  });
+}
+setInterval(checkBirthdayAlarms,15000);
+
+function render(){d.tasks.sort((a,b)=>score(b)-score(a));save();let t=d.tasks[0];document.getElementById("time").textContent=d.available>=60?Math.floor(d.available/60)+" h "+d.available%60:d.available+" min";document.getElementById("current").textContent=t?t.name:"🎉 Tout est fait !";document.getElementById("meta").textContent=t?"◷ "+t.min+" min · ⌖ "+t.place:"Toutes tes tâches sont terminées.";let l=document.getElementById("list");l.innerHTML="";d.tasks.slice(1).forEach((x,i)=>l.innerHTML+=`<div class="row"><span class="emoji">${i%3?"🧹":"🛒"}</span><div class="grow"><b>${esc(x.name)}</b><small>⌖ ${esc(x.place)}</small></div><span class="mins">${x.min} min</span><button class="alarm ${x.alarmAt?'on':''}" onclick="setAlarm(${i+1})">${x.alarmAt?'⏰ '+x.alarmAt:'⏰ Alarme'}</button></div>`)}
+function esc(x){return x.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function done(){if(!d.tasks.length)return;let t=d.tasks.shift();d.available=Math.max(0,d.available-t.min);msg("✓ Terminé. Voici la prochaine.");render()}
+function later(){if(d.tasks.length>1){d.tasks.push(d.tasks.shift());msg("↻ Mis plus tard.");render()}}
+function start(){let t=d.tasks[0];if(t)msg("▶ "+t.name+" — à toi de jouer !")}
+function add(){let s=document.getElementById("txt").value.trim();if(!s)return;let a=s.split(/\s*(?:,|;| puis | ensuite | et )\s*/i);a.forEach(p=>{if(!p.trim())return;let m=p.match(/(\d+)\s*(?:min|minutes)/i),min=m?+m[1]:15,n=p.replace(/\d+\s*(?:min|minutes)/i,"").replace(/^[:,-]\s*/,"").trim();let place=/course|supermarché|acheter/i.test(n)?"Supermarché":/appeler|téléphoner/i.test(n)?"Téléphone":"Maison";d.tasks.push({name:n[0].toUpperCase()+n.slice(1),min,place,p:/urgent|important|vite|aujourd'hui/i.test(n)?4:1})});document.getElementById("txt").value="";msg("✓ Ajouté.");render()}
+function speak(){if(!("webkitSpeechRecognition"in window)){msg("La dictée n’est pas disponible ici.");return}let r=new webkitSpeechRecognition();r.lang="fr-FR";r.onstart=()=>msg("🎙 Je t’écoute…");r.onresult=e=>{document.getElementById("txt").value=e.results[0][0].transcript;add()};r.onerror=()=>msg("Je n’ai pas compris.");r.start()}
+
+function setAlarm(index){
+  const t=d.tasks[index];
+  if(!t)return;
+  const when=prompt("À quelle heure veux-tu être rappelé ?\nExemple : 18:30",t.alarmAt||"");
+  if(!when)return;
+  if(!/^\d{1,2}:\d{2}$/.test(when)){msg("Format : HH:MM");return}
+  const [h,m]=when.split(":").map(Number);
+  if(h>23||m>59){msg("Heure invalide.");return}
+  t.alarmAt=String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+  save(); render(); msg("⏰ Alarme réglée pour "+t.alarmAt);
+}
+function checkAlarms(){
+  const now=new Date();
+  const hh=String(now.getHours()).padStart(2,"0"), mm=String(now.getMinutes()).padStart(2,"0");
+  d.tasks.forEach(t=>{
+    if(t.alarmAt===hh+":"+mm && t.lastAlarm!==hh+":"+mm){
+      t.lastAlarm=hh+":"+mm; save();
+      notify(t.name);
+    }
+  });
+}
+function notify(task){
+  const message="C'est le moment : "+task;
+  if("Notification" in window && Notification.permission==="granted"){
+    new Notification("MAINTENANT ⏰",{body:message});
+  } else {
+    try{ navigator.vibrate?.([300,150,300,150,500]); }catch(e){}
+    alert("⏰ MAINTENANT\n\n"+message);
+  }
+}
+function askNotifications(){
+  if("Notification" in window && Notification.permission==="default"){
+    Notification.requestPermission().then(()=>msg("🔔 Notifications activées."));
+  }
+}
+setInterval(checkAlarms,15000);
+
+function msg(x){document.getElementById("status").textContent=x;setTimeout(()=>document.getElementById("status").textContent="",2500)}render();
+</script></body></html>
